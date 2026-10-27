@@ -1,20 +1,23 @@
 <!doctype html>
 <html lang="da">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>AI-AGENTER GÅET ROGUE I LSC!</title>
+
+<!-- PWA / App-indstillinger -->
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LSC Spil">
 <link rel="apple-touch-icon" href="ikon-192.png">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>AI-AGENTER GÅET ROGUE I LSC!</title>
+
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
 <style>
 :root{--bg:#05030f;--ink:#e9f7ff;--neon:#39ff88;--pink:#ff3df2;--cyan:#33e1ff;--amber:#ffd23f;--red:#ff4d5e;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-html,body{height:100%;margin:0}
-body{background:var(--bg);color:var(--ink);font-family:"Press Start 2P",ui-monospace,Menlo,Consolas,monospace;display:flex;flex-direction:column;overflow:hidden}
+html,body{height:100%;margin:0;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+body{background:var(--bg);color:var(--ink);font-family:"Press Start 2P",ui-monospace,Menlo,Consolas,monospace;display:flex;flex-direction:column}
 #hud{display:flex;justify-content:space-between;gap:8px;padding:10px 14px 6px;font-size:11px;line-height:1.6;color:var(--amber);text-shadow:0 0 6px currentColor}
 #hud i{font-style:normal;color:var(--ink);text-shadow:none}
 #lv{color:var(--red)}
@@ -217,7 +220,7 @@ function line(x0,y0,x1,y1){ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);c
 function ball(x,y,rad,c,c2){ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,rad,0,6.3);ctx.fill();ctx.fillStyle=c2;ctx.beginPath();ctx.arc(x-rad*.3,y-rad*.25,rad*.55,0,6.3);ctx.fill()}
 function poly(pts,c,f){ctx.beginPath();pts.forEach((q,i)=>i?ctx.lineTo(q[0]*W,q[1]*H*.8):ctx.moveTo(q[0]*W,q[1]*H*.8));ctx.closePath();ctx.fillStyle=f;ctx.fill();ctx.strokeStyle=c;ctx.lineWidth=1.5;ctx.stroke()}
 
-/* Bane 1: dæmpet, sløret kredsløb (tegnes i lav opløsning og skaleres op) */
+/* Bane 1: dæmpet, sløret kredsløb */
 let CIRC=null,CW=0,CH=0,PATHS=[];
 function circuit(){
   if(CIRC&&CW===W&&CH===H)return CIRC;
@@ -247,7 +250,6 @@ function wopr(){
   lights();
 }
 function pathPos(q,d){for(let i=0;i<q.len.length;i++){if(d<=q.len[i]){const a=q.pts[i],b=q.pts[i+1],f=q.len[i]?d/q.len[i]:0;return[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f]}d-=q.len[i]}return q.pts[q.pts.length-1]}
-/* ét rødt og ét blåt lys, der løber frem og tilbage gennem kredsløbet */
 function lights(){
   const L=PATHS.slice().sort((a,b)=>b.tot-a.tot).slice(0,2);
   ctx.globalCompositeOperation="lighter";
@@ -356,6 +358,11 @@ $("fire").addEventListener("pointerdown",e=>{e.preventDefault();fire()});
 
 ["pointerdown","keydown"].forEach(ev=>addEventListener(ev,()=>{if(!musicT&&!muted)music(space?0:Math.min(round,4))}));
 resize();hud("");intro();requestAnimationFrame(t=>{last=t;loop(t)});
+
+/* Registrering af Service Worker til PWA */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
 </script>
 </body>
 </html>
